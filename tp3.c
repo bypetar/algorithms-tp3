@@ -26,7 +26,9 @@ struct dictionary {
 
 dictionary_t *dictionary_create(destroy_f destroy) {
     dictionary_t *dict = malloc(sizeof(dictionary_t));
-    if (!dict) return NULL;
+    if (!dict){
+      return NULL;
+    }
     dict->entries = calloc(16, sizeof(data_t));
     if (!dict->entries) {
         free(dict);
@@ -47,11 +49,15 @@ size_t hash_function(const char *key, size_t capacity) {
 }
 
 bool dictionary_put(dictionary_t *dictionary, const char *key, void *value) {
-    if (!dictionary || !key || key[0] == '\0') return false;
+    if (!dictionary || !key || key[0] == '\0'){
+      return false;
+    }
     if (dictionary->size >= dictionary->capacity) {
         size_t new_capacity = dictionary->capacity * 2;
         data_t *new_entries = calloc(new_capacity, sizeof(data_t));
-        if (!new_entries) return false;
+        if (!new_entries){
+          return false;
+        }
         for (size_t i = 0; i < dictionary->capacity; i++) {
             if (dictionary->entries[i].key && !dictionary->entries[i].is_deleted) {
                 size_t new_hash = hash_function(dictionary->entries[i].key, new_capacity);
@@ -67,6 +73,7 @@ bool dictionary_put(dictionary_t *dictionary, const char *key, void *value) {
                     dictionary->destroy(dictionary->entries[i].value);
                 }
             }
+
         }
         free(dictionary->entries);
         dictionary->entries = new_entries;
@@ -93,7 +100,9 @@ bool dictionary_put(dictionary_t *dictionary, const char *key, void *value) {
             }
         }
         hash = (hash + 1) % dictionary->capacity;
-        if (hash == original_hash) return false;
+        if (hash == original_hash){
+          return false;
+        }
     }
     dictionary->entries[hash].key = my_strdup(key);
     if (!dictionary->entries[hash].key) return false;
@@ -105,7 +114,9 @@ bool dictionary_put(dictionary_t *dictionary, const char *key, void *value) {
 
 void *dictionary_get(dictionary_t *dictionary, const char *key, bool *err) {
     if (!dictionary || !key || key[0] == '\0') {
-        if (err) *err = true;
+        if (err){
+          *err = true;
+        }
         return NULL;
     }
     size_t hash = hash_function(key, dictionary->capacity);
@@ -116,14 +127,18 @@ void *dictionary_get(dictionary_t *dictionary, const char *key, bool *err) {
             return dictionary->entries[hash].value;
         }
         hash = (hash + 1) % dictionary->capacity;
-        if (hash == original_hash) break;
+        if (hash == original_hash){
+          break;
+        }
     }
     *err = true;
     return NULL;
 }
 
 bool dictionary_delete(dictionary_t *dictionary, const char *key) {
-    if (!dictionary || !key || key[0] == '\0') return false;
+    if (!dictionary || !key || key[0] == '\0'){
+      return false;
+    }
     size_t hash = hash_function(key, dictionary->capacity);
     size_t original_hash = hash;
     while (dictionary->entries[hash].key) {
@@ -137,14 +152,18 @@ bool dictionary_delete(dictionary_t *dictionary, const char *key) {
             return true;
         }
         hash = (hash + 1) % dictionary->capacity;
-        if (hash == original_hash) return false;
+        if (hash == original_hash){
+          return false;
+        }
     }
     return false;
 }
 
 void *dictionary_pop(dictionary_t *dictionary, const char *key, bool *err) {
     if (!dictionary || !key || key[0] == '\0') {
-        if (err) *err = true;
+        if (err){
+          *err = true;
+        }
         return NULL;
     }
     size_t hash = hash_function(key, dictionary->capacity);
@@ -159,14 +178,20 @@ void *dictionary_pop(dictionary_t *dictionary, const char *key, bool *err) {
             return value;
         }
         hash = (hash + 1) % dictionary->capacity;
-        if (hash == original_hash) break;
+        if (hash == original_hash){
+           break;
+        }
     }
-    if (err) *err = true;
+    if (err){
+      *err = true;
+    }
     return NULL;
 }
 
 bool dictionary_contains(dictionary_t *dictionary, const char *key) {
-    if (!dictionary || !key || key[0] == '\0') return false;
+    if (!dictionary || !key || key[0] == '\0'){
+       return false;
+    }
     size_t hash = hash_function(key, dictionary->capacity);
     size_t original_hash = hash;
     while (dictionary->entries[hash].key) {
@@ -174,18 +199,24 @@ bool dictionary_contains(dictionary_t *dictionary, const char *key) {
             return true;
         }
         hash = (hash + 1) % dictionary->capacity;
-        if (hash == original_hash) return false;
+        if (hash == original_hash){ 
+        return false;
+      }
     }
     return false;
 }
 
 size_t dictionary_size(dictionary_t *dictionary) {
-    if (!dictionary) return 0;
+    if (!dictionary){
+      return 0;
+    }
     return dictionary->size;
 }
 
 void dictionary_destroy(dictionary_t *dictionary) {
-    if (!dictionary) return;
+    if (!dictionary){
+      return;
+    } 
     for (size_t i = 0; i < dictionary->capacity; i++) {
         if (dictionary->entries[i].key) {
             free(dictionary->entries[i].key);
